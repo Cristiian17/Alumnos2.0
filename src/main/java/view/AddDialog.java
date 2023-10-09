@@ -221,7 +221,7 @@ public class AddDialog extends JDialog {
             motivacion = Motivacion.valueOf("Muy_motivado");
         } else if (moderadamenteMotivadoRadioButton.isSelected()) {
             motivacion = Motivacion.valueOf("Moderadamente_motivado");
-        } else if (pocoMotivadoRadioButton.isSelected()) {
+        } else {
             motivacion = Motivacion.valueOf("Poco_motivado");
         }
         a.setMotivacion(motivacion);
@@ -257,6 +257,7 @@ public class AddDialog extends JDialog {
             case Muy_motivado -> muyMotivadoRadioButton.setSelected(true);
             case Poco_motivado -> pocoMotivadoRadioButton.setSelected(true);
             case Moderadamente_motivado -> moderadamenteMotivadoRadioButton.setSelected(true);
+
 
         }
         switch (a.getCiclo()){

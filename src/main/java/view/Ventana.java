@@ -7,13 +7,15 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.ParseException;
 import java.util.*;
 
 public class Ventana {
     private JPanel panel;
     private JButton btnCargarDatos;
-    private JTable table1;
+    private JTable tablaAlumnos;
     private JButton btnGuardarDAT;
     private JButton anadirAlumnoButton;
     private JTextField txtNombreArchivo;
@@ -26,83 +28,145 @@ public class Ventana {
     private JButton DATAJSONButton;
     private JButton DATACSVButton;
     private JButton DATAPDFButton;
+    private JButton persistirButton;
+    private JTable tablaFicheros;
+    private JButton cargarTablaButton;
+    private DefaultTableModel dtmFicheros;
     private DefaultComboBoxModel<String> dcbmConsultas;
     private final DefaultComboBoxModel<String> dcbm;
-    private DefaultTableModel dtm;
+    private DefaultTableModel dtmAlumnos;
     private ArrayList<Alumno> listaAlumnos;
     private ArrayList<Alumno> alumnosConsulta;
 public Ventana() {
-    listaAlumnos = new ArrayList<Alumno>();
+    listaAlumnos = new ArrayList<>();
 
+    dtmAlumnos = new DefaultTableModel();
+    tablaAlumnos.setModel(dtmAlumnos);
+
+    dtmFicheros = new DefaultTableModel();
+    tablaFicheros.setModel(dtmFicheros);
 
     dcbm = new DefaultComboBoxModel();
     cbConsultas2.setModel(dcbm);
-
     dcbmConsultas = new DefaultComboBoxModel<>();
     cbConsultas.setModel(dcbmConsultas);
-
     dcbmConsultas.addElement("");
     dcbmConsultas.addElement("localidad");
     dcbmConsultas.addElement("carnet");
     dcbmConsultas.addElement("ordenador");
+
     cbConsultas.addActionListener(e -> generarFiltros());
-    btnBorrarAlumno.addActionListener(e -> deleteAlumno(alumnosConsulta.get(table1.getSelectedRow())));
+    btnBorrarAlumno.addActionListener(e -> deleteAlumno(alumnosConsulta.get(tablaAlumnos.getSelectedRow())));
     btnCargarDatos.addActionListener(e -> cargarTabla());
     anadirAlumnoButton.addActionListener(e -> addAlumno());
-    btnGuardarDAT.addActionListener(e -> save(alumnosConsulta));
+    btnGuardarDAT.addActionListener(e -> saveConsulta(alumnosConsulta));
     btnConsultar.addActionListener(e -> consult());
+    exportarAXMLButton.addActionListener(e -> exportarDatAXml());
+    DATAJSONButton.addActionListener(e -> exportarDatAJson());
+    DATACSVButton.addActionListener(e -> exportarDatACsv());
+    DATAPDFButton.addActionListener(e -> exportarDatAPdf());
+    persistirButton.addActionListener(e -> save(listaAlumnos));
+    cargarTablaButton.addActionListener(e -> recargarTabla());
 
     editarAlumnoButton.addActionListener(e -> {
-        Alumno a = alumnosConsulta.get(table1.getSelectedRow());
+        Alumno a = alumnosConsulta.get(tablaAlumnos.getSelectedRow());
         try {
             editAlumno(a);
         } catch (ParseException ex) {
             System.out.println("fallo al convertir la fecha, formato incorrecto \n Formato correcto 'Wed Aug dd hh:mm:ss CEST YYYY'");
         }
     });
-    exportarAXMLButton.addActionListener(e -> exportarDatAXml());
-    DATAJSONButton.addActionListener(new ActionListener() {
+    tablaFicheros.addMouseListener(new MouseAdapter() {
         @Override
-        public void actionPerformed(ActionEvent e) {
-            exportarDatAJson();
+        public void mouseClicked(MouseEvent e) {
+            showContent();
         }
     });
-    DATACSVButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            exportarDatACsv();
-        }
-    });
-    DATAPDFButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            exportarDatAPdf();
-        }
-    });
+    cargarFicheros();
+    cargar();
+
 }
 
-    private void exportarDatAPdf(){
-        ArrayList<Alumno> alumnos = AlumnosDAO.leerArrayListDesdeArchivoBinario("alumnos.dat");
-        AlumnosDAO.saveOnPDF(alumnos,"alumnos.pfd");
+    private void showContent(){
+        int row = tablaFicheros.getSelectedRow();
+        String nombreArchivo = (String) dtmFicheros.getValueAt(row,0);
+        int lastIndex = nombreArchivo.lastIndexOf(".");
 
+        if (lastIndex != -1) {
+            // Extraer la extensión a partir del último punto
+            String extension = nombreArchivo.substring(lastIndex + 1);
+            // Imprimir la extensión
+            ArrayList<Alumno> list = new ArrayList<>();
+            switch (extension){
+                case "csv" -> list = (ArrayList<Alumno>) AlumnosDAO.readCsv("./files/" + nombreArchivo);
+                case "dat" -> list = AlumnosDAO.readDat("./files/" + nombreArchivo);
+                case "json" -> list = (ArrayList<Alumno>) AlumnosDAO.readJson("./files/" + nombreArchivo);
+                case "xml" -> list = (ArrayList<Alumno>) AlumnosDAO.readXml("./files/" + nombreArchivo) ;
+                case "pdf" -> list = (ArrayList<Alumno>) AlumnosDAO.readPdf("./files/" + nombreArchivo);
+            }
+            FileDialog d = new FileDialog(list);
+            d.setSize(1400,500);
+            d.setTitle(nombreArchivo);
+            d.setLocationRelativeTo(null);
+            d.setVisible(true);
+        }
+    }
+
+    private void cargarFicheros(){
+        ArrayList listFiles = (ArrayList) AlumnosDAO.getFileNames("./files/");
+        dtmFicheros.addColumn("Ficheros");
+        listFiles.forEach(a -> dtmFicheros.addRow(new Object[]{a.toString()}));
+
+    }
+    private void cargar(){
+        dtmAlumnos.addColumn("Apellidos");
+        dtmAlumnos.addColumn("Nombre");
+        dtmAlumnos.addColumn("Email");
+        dtmAlumnos.addColumn("Poblacion");
+        dtmAlumnos.addColumn("Telefono");
+        dtmAlumnos.addColumn("Ciclo");
+        dtmAlumnos.addColumn("Ordenador");
+        dtmAlumnos.addColumn("Carnet");
+        dtmAlumnos.addColumn("Estudios");
+        dtmAlumnos.addColumn("Fecha nacimiento");
+        dtmAlumnos.addColumn("Motivacion");
+        dtmAlumnos.addColumn("Hobbies");
+        listaAlumnos.addAll(AlumnosDAO.readDat("./files/alumnos.dat"));
+        alumnosConsulta = listaAlumnos;
+        actualizarTabla();
+    }
+
+    private void recargarTabla(){
+        alumnosConsulta = listaAlumnos;
+        actualizarTabla();
+    }
+    private void exportarDatAPdf(){
+        ArrayList<Alumno> alumnos = AlumnosDAO.readDat("./files/alumnos.dat");
+        try {
+            AlumnosDAO.saveOnPDF(alumnos,"./files/alumnos.pdf");
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
     private void exportarDatACsv(){
-        ArrayList<Alumno> alumnos = AlumnosDAO.leerArrayListDesdeArchivoBinario("alumnos.dat");
-        AlumnosDAO.saveOnCSV(alumnos,"alumnos2.csv");
-
+        ArrayList<Alumno> alumnos = AlumnosDAO.readDat("./files/alumnos.dat");
+        try {
+            AlumnosDAO.saveOnCSV(alumnos,"./files/alumnos2.csv");
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
     private void exportarDatAJson(){
-        ArrayList<Alumno> alumnos = AlumnosDAO.leerArrayListDesdeArchivoBinario("alumnos.dat");
-        AlumnosDAO.saveOnJSON(alumnos, "alumnos.json");
-
+        ArrayList<Alumno> alumnos = AlumnosDAO.readDat("./files/alumnos.dat");
+        AlumnosDAO.saveOnJSON(alumnos, "./files/alumnos.json");
     }
     private void exportarDatAXml(){
-        ArrayList<Alumno> alumnos = AlumnosDAO.leerArrayListDesdeArchivoBinario("alumnos.dat");
-        AlumnosDAO.saveOnXML(alumnos,"alumnos.xml");
-
+        ArrayList<Alumno> alumnos = AlumnosDAO.readDat("./files/alumnos.dat");
+        AlumnosDAO.saveOnXML(alumnos,"./files/alumnos.xml");
     }
     private void editAlumno(Alumno a) throws ParseException {
         AddDialog d = new AddDialog();
+        d.setLocationRelativeTo(null);
         d.setAlumno(a);
         d.setVisible(true);
         Alumno al = d.getAlumno();
@@ -119,8 +183,8 @@ public Ventana() {
         actualizarTabla();
     }
     private void actualizarTabla() {
-        dtm.setRowCount(0);
-        alumnosConsulta.forEach(a -> dtm.addRow(new Object[]{a.getApellidos(),a.getNombre(), a.getEmail(), a.getPoblacion(), a.getTelefono(),
+        dtmAlumnos.setRowCount(0);
+        alumnosConsulta.forEach(a -> dtmAlumnos.addRow(new Object[]{a.getApellidos(),a.getNombre(), a.getEmail(), a.getPoblacion(), a.getTelefono(),
                 a.getCiclo(),a.getOrdenador() ,a.isSiCarnet(), a.getEstudios(), a.getFechaNacimiento(), a.getMotivacion(), a.getHobbies()}));
     }
 
@@ -179,48 +243,38 @@ public Ventana() {
                 });
             }
         }
-        dtm.setRowCount(0);
-        alumnosConsulta.forEach(a -> dtm.addRow(new Object[]{a.getApellidos(),a.getNombre(), a.getEmail(), a.getPoblacion(), a.getTelefono(),
+        dtmAlumnos.setRowCount(0);
+        alumnosConsulta.forEach(a -> dtmAlumnos.addRow(new Object[]{a.getApellidos(),a.getNombre(), a.getEmail(), a.getPoblacion(), a.getTelefono(),
                 a.getCiclo(),a.getOrdenador() ,a.isSiCarnet(), a.getEstudios(), a.getFechaNacimiento(), a.getMotivacion(), a.getHobbies()}));
 
     }
-    private void save(ArrayList<Alumno> listaAlumnos){
-        AlumnosDAO dao = new AlumnosDAO();
+    private void saveConsulta(ArrayList<Alumno> listaAlumnos){
         String nombreFichero = txtNombreArchivo.getText();
         if(!nombreFichero.isEmpty()){
-            dao.saveAlumnosDAT(listaAlumnos,nombreFichero+".dat");
+            AlumnosDAO.saveAlumnosDAT(listaAlumnos,nombreFichero+".dat");
         }
     }
+    private void save(ArrayList<Alumno> listaAlumnos){
+        if(!listaAlumnos.isEmpty()){
+            AlumnosDAO.saveAlumnosDAT(listaAlumnos,"./files/alumnos.dat");
+        }
+
+    }
     private void cargarTabla() {
-        dtm = new DefaultTableModel();
-        table1.setModel(dtm);
-
-        dtm.addColumn("apellidos");
-        dtm.addColumn("Nombre");
-        dtm.addColumn("Email");
-        dtm.addColumn("Poblacion");
-        dtm.addColumn("Telefono");
-        dtm.addColumn("ciclo");
-        dtm.addColumn("ordenador");
-        dtm.addColumn("carnet");
-        dtm.addColumn("Estudios");
-        dtm.addColumn("Fecha nacimiento");
-        dtm.addColumn("Motivacion");
-        dtm.addColumn("Hobbies");
-
-        AlumnosDAO dao = new AlumnosDAO();
-        listaAlumnos = (ArrayList) dao.getAlumnosCSV();
+        dtmAlumnos.setRowCount(0);
+        listaAlumnos = (ArrayList) AlumnosDAO.getAlumnosCSV();
         alumnosConsulta = listaAlumnos;
-        listaAlumnos.forEach( a -> dtm.addRow(new Object[]{a.getApellidos(),a.getNombre(), a.getEmail(), a.getPoblacion(), a.getTelefono(),
+        listaAlumnos.forEach( a -> dtmAlumnos.addRow(new Object[]{a.getApellidos(),a.getNombre(), a.getEmail(), a.getPoblacion(), a.getTelefono(),
         a.getCiclo(),a.getOrdenador() ,a.isSiCarnet(), a.getEstudios(), a.getFechaNacimiento(), a.getMotivacion(), a.getHobbies()}));
     }
     private void addAlumno() {
         AddDialog d = new AddDialog();
+        d.setLocationRelativeTo(null);
         d.setVisible(true);
         if (d.getAlumno() != null){
             Alumno a = d.getAlumno();
             listaAlumnos.add(a);
-            dtm.addRow(new Object[]{a.getApellidos(),a.getNombre(), a.getEmail(), a.getPoblacion(), a.getTelefono(),
+            dtmAlumnos.addRow(new Object[]{a.getApellidos(),a.getNombre(), a.getEmail(), a.getPoblacion(), a.getTelefono(),
                     a.getCiclo(),a.getOrdenador() ,a.isSiCarnet(), a.getEstudios(), a.getFechaNacimiento(), a.getMotivacion(), a.getHobbies()});
         }
         actualizarTabla();
@@ -232,6 +286,5 @@ public Ventana() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
-
     }
 }
