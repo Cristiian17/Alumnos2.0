@@ -87,11 +87,7 @@ public class AddDialog extends JDialog {
             }
         });
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonCancel.addActionListener(e -> onCancel());
 
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -101,11 +97,7 @@ public class AddDialog extends JDialog {
             }
         });
 
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
     private void onCancel() {
@@ -144,7 +136,8 @@ public class AddDialog extends JDialog {
         } else if (noRadioButton.isSelected()) {
             carnet = false;
         }
-        List<String> estudios = Collections.singletonList(txtEstudios.getText());
+
+        List<String> estudios = Collections.singletonList(txtEstudios.getText().replace("[","").replace("]",""));
         SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
         Date fechaNacimiento = null;
         try {
@@ -162,7 +155,7 @@ public class AddDialog extends JDialog {
         } else if (pocoMotivadoRadioButton.isSelected()) {
             motivacion = Motivacion.valueOf("Poco_motivado");
         }
-        List<String> hobbies = Collections.singletonList(txtHobbies.getText());
+        List<String> hobbies = Collections.singletonList(txtHobbies.getText().replace("[","").replace("]",""));
         this.alumno = new Alumno(apellido, nombre, email,localidad, telefono,ciclo,ordenador,carnet, estudios,fechaNacimiento,motivacion, hobbies);
         dispose();
     }
@@ -171,11 +164,9 @@ public class AddDialog extends JDialog {
         a.setApellidos(txtApellidos.getText());
         a.setNombre(txtNombre.getText());
         a.setEmail(txtEmail.getText());
-        a.setEstudios(Collections.singletonList(txtEstudios.getText()));
+        a.setEstudios(Collections.singletonList(txtEstudios.getText().replace("[","").replace("]","")));
         a.setTelefono(txtTelefono.getText());
-        ArrayList l = new ArrayList();
-        l.add(txtHobbies.getText());
-        a.setHobbies(l);
+        a.setHobbies(Collections.singletonList(txtHobbies.getText().replace("[", "").replace("]", "")));
         a.setPoblacion(txtPoblacion.getText());
         if (siRadioButton.isSelected()){
             a.setSiCarnet(true);
