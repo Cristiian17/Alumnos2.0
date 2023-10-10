@@ -5,8 +5,6 @@ import model.Alumno;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.ParseException;
@@ -19,8 +17,7 @@ public class Ventana {
     private JButton btnGuardarDAT;
     private JButton anadirAlumnoButton;
     private JTextField txtNombreArchivo;
-    private JComboBox cbConsultas2;
-    private JComboBox cbConsultas;
+    private JComboBox cbConsultas2, cbConsultas;
     private JButton btnConsultar;
     private JButton btnBorrarAlumno;
     private JButton editarAlumnoButton;
@@ -31,10 +28,10 @@ public class Ventana {
     private JButton persistirButton;
     private JTable tablaFicheros;
     private JButton cargarTablaButton;
-    private DefaultTableModel dtmFicheros;
-    private DefaultComboBoxModel<String> dcbmConsultas;
+    private final DefaultTableModel dtmFicheros;
+    private final DefaultComboBoxModel<String> dcbmConsultas;
     private final DefaultComboBoxModel<String> dcbm;
-    private DefaultTableModel dtmAlumnos;
+    private final DefaultTableModel dtmAlumnos;
     private ArrayList<Alumno> listaAlumnos;
     private ArrayList<Alumno> alumnosConsulta;
 public Ventana() {
@@ -46,7 +43,7 @@ public Ventana() {
     dtmFicheros = new DefaultTableModel();
     tablaFicheros.setModel(dtmFicheros);
 
-    dcbm = new DefaultComboBoxModel();
+    dcbm = new DefaultComboBoxModel<>();
     cbConsultas2.setModel(dcbm);
     dcbmConsultas = new DefaultComboBoxModel<>();
     cbConsultas.setModel(dcbmConsultas);
@@ -231,11 +228,7 @@ public Ventana() {
             });
             case "carnet" -> {
                 boolean carnet;
-                if (consulta2.equals("si")) {
-                    carnet = true;
-                } else {
-                    carnet = false;
-                }
+                carnet = consulta2.equals("si");
                 listaAlumnos.forEach(alumno -> {
                     if (alumno.isSiCarnet() == carnet) {
                         alumnosConsulta.add(alumno);

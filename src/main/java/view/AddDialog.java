@@ -9,10 +9,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class AddDialog extends JDialog {
     private JPanel contentPane;
@@ -176,7 +173,9 @@ public class AddDialog extends JDialog {
         a.setEmail(txtEmail.getText());
         a.setEstudios(Collections.singletonList(txtEstudios.getText()));
         a.setTelefono(txtTelefono.getText());
-        a.setHobbies(Collections.singletonList(txtHobbies.getText()));
+        ArrayList l = new ArrayList();
+        l.add(txtHobbies.getText());
+        a.setHobbies(l);
         a.setPoblacion(txtPoblacion.getText());
         if (siRadioButton.isSelected()){
             a.setSiCarnet(true);
