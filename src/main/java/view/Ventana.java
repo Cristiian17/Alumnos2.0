@@ -63,14 +63,7 @@ public Ventana() {
     persistirButton.addActionListener(e -> save(listaAlumnos));
     cargarTablaButton.addActionListener(e -> recargarTabla());
 
-    editarAlumnoButton.addActionListener(e -> {
-        Alumno a = alumnosConsulta.get(tablaAlumnos.getSelectedRow());
-        try {
-            editAlumno(a);
-        } catch (ParseException ex) {
-            System.out.println("fallo al convertir la fecha, formato incorrecto \n Formato correcto 'Wed Aug dd hh:mm:ss CEST YYYY'");
-        }
-    });
+    editarAlumnoButton.addActionListener(e -> editAlumno(tablaAlumnos.getSelectedRow()));
     tablaFicheros.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -160,8 +153,12 @@ public Ventana() {
         ArrayList<Alumno> alumnos = AlumnosDAO.readDat("./files/alumnos.dat");
         AlumnosDAO.saveOnXML(alumnos,"./files/alumnos.xml");
     }
-    private void editAlumno(Alumno a) throws ParseException {
-        AddDialog d = new AddDialog();
+    private void editAlumno(int alu){
+        if(alu < 0){
+            return;
+        }
+        Alumno a = alumnosConsulta.get(alu);
+        AddDialog d = new AddDialog(false);
         d.setLocationRelativeTo(null);
         d.setAlumno(a);
         d.setVisible(true);
@@ -265,7 +262,7 @@ public Ventana() {
         a.getCiclo(),a.getOrdenador() ,a.isSiCarnet(), a.getEstudios(), a.getFechaNacimiento(), a.getMotivacion(), a.getHobbies()}));
     }
     private void addAlumno() {
-        AddDialog d = new AddDialog();
+        AddDialog d = new AddDialog(true);
         d.setLocationRelativeTo(null);
         d.setVisible(true);
         if (d.getAlumno() != null){

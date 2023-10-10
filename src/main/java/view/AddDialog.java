@@ -42,9 +42,10 @@ public class AddDialog extends JDialog {
     private ButtonGroup ordenadorGroup;
     private Alumno alumno;
     private boolean add;
-    private boolean edit;
 
-    public AddDialog() {
+    public AddDialog(boolean editable) {
+
+        txtFecha.setEditable(editable);
         txtEstudios.setLineWrap(true);
         txtHobbies.setLineWrap(true);
         setContentPane(contentPane);
@@ -52,7 +53,7 @@ public class AddDialog extends JDialog {
         getRootPane().setDefaultButton(buttonOK);
         setSize(800,600);
         add = true;
-        edit = false;
+        boolean edit = false;
         carnetGroup = new ButtonGroup();
         carnetGroup.add(siRadioButton);
         carnetGroup.add(noRadioButton);
@@ -258,10 +259,4 @@ public class AddDialog extends JDialog {
         add = false;
     }
 
-    public static void main(String[] args) {
-        AddDialog dialog = new AddDialog();
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
-    }
 }
