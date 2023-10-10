@@ -81,7 +81,6 @@ public Ventana() {
     });
     cargarFicheros();
     cargar();
-
 }
 
     private void showContent(){
@@ -111,6 +110,8 @@ public Ventana() {
 
     private void cargarFicheros(){
         ArrayList listFiles = (ArrayList) AlumnosDAO.getFileNames("./files/");
+        dtmFicheros.setRowCount(0);
+        dtmFicheros.setColumnCount(0);
         dtmFicheros.addColumn("Ficheros");
         listFiles.forEach(a -> dtmFicheros.addRow(new Object[]{a.toString()}));
 
@@ -244,8 +245,9 @@ public Ventana() {
     private void saveConsulta(ArrayList<Alumno> listaAlumnos){
         String nombreFichero = txtNombreArchivo.getText();
         if(!nombreFichero.isEmpty()){
-            AlumnosDAO.saveAlumnosDAT(listaAlumnos,nombreFichero+".dat");
+            AlumnosDAO.saveAlumnosDAT(listaAlumnos,"./files/"+nombreFichero+".dat");
         }
+        cargarFicheros();
     }
     private void save(ArrayList<Alumno> listaAlumnos){
         if(!listaAlumnos.isEmpty()){
