@@ -246,10 +246,8 @@ public class AddDialog extends JDialog {
         }
         switch (a.getMotivacion()){
             case Muy_motivado -> muyMotivadoRadioButton.setSelected(true);
-            case Poco_motivado -> pocoMotivadoRadioButton.setSelected(true);
             case Moderadamente_motivado -> moderadamenteMotivadoRadioButton.setSelected(true);
-
-
+            case Poco_motivado -> pocoMotivadoRadioButton.setSelected(true);
         }
         switch (a.getCiclo()){
             case DAM -> DAMRadioButton.setSelected(true);

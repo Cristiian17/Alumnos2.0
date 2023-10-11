@@ -5,8 +5,13 @@ import model.Alumno;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 
@@ -29,6 +34,7 @@ public class Ventana {
     private JButton cargarTablaButton;
     private JTable tablaAlumnos;
     private JTable tablaFicheros;
+    private JButton DATAHTMLButton;
     private final DefaultTableModel dtmFicheros, dtmAlumnos;
     private final DefaultComboBoxModel<String> dcbmConsultas, dcbm;
     private ArrayList<Alumno> listaAlumnos, alumnosConsulta;
@@ -54,6 +60,7 @@ public Ventana() {
     btnBorrarAlumno.addActionListener(e -> deleteAlumno(tablaAlumnos.getSelectedRow()));
     btnCargarDatos.addActionListener(e -> chargeTable());
     anadirAlumnoButton.addActionListener(e -> addAlumno());
+
     btnGuardarDAT.addActionListener(e -> saveConsult(alumnosConsulta));
     btnConsultar.addActionListener(e -> consult());
     exportarAXMLButton.addActionListener(e -> exportarDatAXml());
@@ -62,7 +69,7 @@ public Ventana() {
     DATAPDFButton.addActionListener(e -> exportarDatAPdf());
     persistirButton.addActionListener(e -> save(listaAlumnos));
     cargarTablaButton.addActionListener(e -> recargarTabla());
-
+    DATAHTMLButton.addActionListener(e -> exportarDatAHtml());
     editarAlumnoButton.addActionListener(e -> editAlumno(tablaAlumnos.getSelectedRow()));
     tablaFicheros.addMouseListener(new MouseAdapter() {
         @Override
@@ -72,6 +79,7 @@ public Ventana() {
     });
     chargeFiles();
     cargar();
+
 }
 
     private void showContent(){
@@ -90,12 +98,34 @@ public Ventana() {
                 case "json" -> list = (ArrayList<Alumno>) AlumnosDAO.readJson("./files/" + nombreArchivo);
                 case "xml" -> list = (ArrayList<Alumno>) AlumnosDAO.readXml("./files/" + nombreArchivo) ;
                 case "pdf" -> list = (ArrayList<Alumno>) AlumnosDAO.readPdf("./files/" + nombreArchivo);
+                case "html" -> openHTMLInChrome();
             }
-            FileDialog d = new FileDialog(list);
-            d.setSize(1400,500);
-            d.setTitle(nombreArchivo);
-            d.setLocationRelativeTo(null);
-            d.setVisible(true);
+            if (!extension.equals("html")){
+                FileDialog d = new FileDialog(list);
+                d.setSize(1400,500);
+                d.setTitle(nombreArchivo);
+                d.setLocationRelativeTo(null);
+                d.setVisible(true);
+            }
+
+        }
+    }
+    public static void openHTMLInChrome() {
+        try {
+            File htmlFile = new File("./files/alumnos.html");
+
+            if (Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+                if (htmlFile.exists()) {
+                    desktop.open(htmlFile);
+                } else {
+                    System.out.println("El archivo HTML no existe.");
+                }
+            } else {
+                System.out.println("El sistema no admite la clase Desktop.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -148,6 +178,10 @@ public Ventana() {
     private void exportarDatAJson(){
         ArrayList<Alumno> alumnos = AlumnosDAO.readDat("./files/alumnos.dat");
         AlumnosDAO.saveOnJSON(alumnos, "./files/alumnos.json");
+    }
+    private void exportarDatAHtml(){
+        ArrayList<Alumno> alumnos = AlumnosDAO.readDat("./files/alumnos.dat");
+        AlumnosDAO.saveOnHTML(alumnos);
     }
     private void exportarDatAXml(){
         ArrayList<Alumno> alumnos = AlumnosDAO.readDat("./files/alumnos.dat");

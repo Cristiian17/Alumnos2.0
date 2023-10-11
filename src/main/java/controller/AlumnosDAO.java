@@ -350,6 +350,50 @@ public class AlumnosDAO {
             e.printStackTrace();
         }
     }
+    public static void saveOnHTML(ArrayList<Alumno> alumnos) {
+        try {
+            // Crear un objeto BufferedWriter para escribir en el archivo
+            BufferedWriter writer = new BufferedWriter(new FileWriter("./files/alumnos.html"));
+            for (Alumno a: alumnos) {
+                // Escribir los datos en el archivo
+                writer.write("<!DOCTYPE html>" +
+                        "<html lang=\"en\">" +
+                        "<meta charset=\"UTF-8\">"+
+                        "<head></head>" +
+                        "<body>");
+                writer.write("<p>Apellido: " + a.getApellidos() + "</p>");
+                writer.newLine();
+                writer.write("<p>Nombre: " + a.getNombre() + "</p>");
+                writer.newLine();
+                writer.write("<p>Email: " + a.getEmail() + "</p>");
+                writer.newLine();
+                writer.write("<p>Localidad: " + a.getPoblacion() + "</p>");
+                writer.newLine();
+                writer.write("<p>Teléfono: " + a.getTelefono() + "</p>");
+                writer.newLine();
+                writer.write("<p>Ciclo: " + a.getCiclo() + "</p>");
+                writer.newLine();
+                writer.write("<p>Ordenador: " + a.getOrdenador() + "</p>");
+                writer.newLine();
+                writer.write("<p>Carnet: " + a.isSiCarnet() + "</p>");
+                writer.newLine();
+                writer.write("<p>Estudios: " + a.getEstudios() + "</p>");
+                writer.newLine();
+                writer.write("<p>Fecha de Nacimiento: " + a.getFechaNacimiento() + "</p>");
+                writer.newLine();
+                writer.write("<p>Motivación: " + a.getMotivacion() + "</p>");
+                writer.newLine();
+                writer.write("<p>Hobbies: " + a.getHobbies() + "</p>");
+                writer.write("<h1>----------------------------------------------------------------------</h1>");
+                writer.write("</body>\n" +
+                        "</html>");
+            }
+            // Cerrar el archivo
+            writer.close();
+        } catch (IOException e) {
+            System.err.println("Error al escribir en el archivo: " + e.getMessage());
+        }
+    }
 
     public static void saveOnJSON(ArrayList<Alumno> listaAlumnos, String nombreArchivo) {
         try {
