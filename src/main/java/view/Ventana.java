@@ -98,7 +98,7 @@ public Ventana() {
                 case "json" -> list = (ArrayList<Alumno>) AlumnosDAO.readJson("./files/" + nombreArchivo);
                 case "xml" -> list = (ArrayList<Alumno>) AlumnosDAO.readXml("./files/" + nombreArchivo) ;
                 case "pdf" -> list = (ArrayList<Alumno>) AlumnosDAO.readPdf("./files/" + nombreArchivo);
-                case "html" -> openHTMLInChrome();
+                case "html" -> openHTMLInChrome("./files/" + nombreArchivo);
             }
             if (!extension.equals("html")){
                 FileDialog d = new FileDialog(list);
@@ -110,9 +110,9 @@ public Ventana() {
 
         }
     }
-    public static void openHTMLInChrome() {
+    public static void openHTMLInChrome(String nombreArchivo) {
         try {
-            File htmlFile = new File("./files/alumnos.html");
+            File htmlFile = new File(nombreArchivo);
 
             if (Desktop.isDesktopSupported()) {
                 Desktop desktop = Desktop.getDesktop();

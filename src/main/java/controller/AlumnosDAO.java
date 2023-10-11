@@ -354,13 +354,14 @@ public class AlumnosDAO {
         try {
             // Crear un objeto BufferedWriter para escribir en el archivo
             BufferedWriter writer = new BufferedWriter(new FileWriter("./files/alumnos.html"));
+            writer.write("<!DOCTYPE html>" +
+                    "<html lang=\"en\">" +
+                    "<meta charset=\"UTF-8\">"+
+                    "<head></head>" +
+                    "<body>");
             for (Alumno a: alumnos) {
                 // Escribir los datos en el archivo
-                writer.write("<!DOCTYPE html>" +
-                        "<html lang=\"en\">" +
-                        "<meta charset=\"UTF-8\">"+
-                        "<head></head>" +
-                        "<body>");
+
                 writer.write("<p>Apellido: " + a.getApellidos() + "</p>");
                 writer.newLine();
                 writer.write("<p>Nombre: " + a.getNombre() + "</p>");
@@ -385,9 +386,9 @@ public class AlumnosDAO {
                 writer.newLine();
                 writer.write("<p>Hobbies: " + a.getHobbies() + "</p>");
                 writer.write("<h1>----------------------------------------------------------------------</h1>");
-                writer.write("</body>\n" +
-                        "</html>");
             }
+            writer.write("</body>\n" +
+                    "</html>");
             // Cerrar el archivo
             writer.close();
         } catch (IOException e) {
